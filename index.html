@@ -6,7 +6,7 @@
 	<title>Bang Bang</title>
 	<style>
 		html, body { margin: 0; height: 100%; overflow: hidden; background: #0a1421; color: #edf4ff; }
-		canvas { display: block; width: 100%; height: 100%; outline: none; }
+		canvas { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
 		#status {
 			position: absolute; inset: 0; display: grid; place-content: center; gap: 1rem;
 			text-align: center; font: 16px system-ui, sans-serif;
@@ -69,10 +69,10 @@
 
 		async function start() {
 			if (!Engine.isWebGLAvailable(2) || !Engine.isFetchAvailable()) {
-				throw new Error("Open Bang Bang in a desktop browser with WebGL 2 support.");
+				throw new Error("This browser could not start WebGL 2. Try opening the link directly in an updated browser.");
 			}
 			// The page plays sound effects directly when audio worklets are unavailable on LAN HTTP.
-			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2124216,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2127352,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 			if (!Engine.isAudioWorkletAvailable()) {
 				config.args = [...config.args, "--audio-driver", "Dummy"];
 			}
