@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Bang Bang</title>
+	<style>
+		html, body { margin: 0; height: 100%; overflow: hidden; background: #0a1421; color: #edf4ff; }
+		canvas { display: block; width: 100%; height: 100%; outline: none; }
+		#status {
+			position: absolute; inset: 0; display: grid; place-content: center; gap: 1rem;
+			text-align: center; font: 16px system-ui, sans-serif;
+		}
+		#status[hidden] { display: none; }
+		progress { width: min(280px, 80vw); justify-self: center; accent-color: #72f2d0; }
+	</style>
+	<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+
+</head>
+<body>
+	<canvas id="canvas" tabindex="0">
+		This browser needs WebGL 2 to play Bang Bang.
+	</canvas>
+	<div id="status" role="status">
+		<span id="message">Loading Bang Bang…</span>
+		<progress id="progress" aria-label="Downloading game"></progress>
+	</div>
+	<script src="index.js"></script>
+	<script>
+		const statusPanel = document.getElementById("status");
+		const progressBar = document.getElementById("progress");
+		const message = document.getElementById("message");
+
+		let audio;
+		function enableAudio() {
+			const Context = window.AudioContext || window.webkitAudioContext;
+			if (!Context) return;
+			audio ||= new Context();
+			if (audio.state === "suspended") audio.resume().catch(() => {});
+		}
+		window.addEventListener("pointerdown", enableAudio, {capture: true});
+		window.addEventListener("keydown", enableAudio, {capture: true});
+		const effects = new Map();
+		window.bangBangRegisterEffect = (name, samples, rate) => {
+			effects.set(name, {samples, rate});
+		};
+		window.bangBangPlayEffect = (name, pitch = 1) => {
+			const effect = effects.get(name);
+			if (!effect || audio?.state !== "running") return;
+			if (!effect.buffer) {
+				const bytes = Uint8Array.from(atob(effect.samples), character => character.charCodeAt(0));
+				const pcm = new DataView(bytes.buffer);
+				effect.buffer = audio.createBuffer(1, bytes.length / 2, effect.rate);
+				const channel = effect.buffer.getChannelData(0);
+				for (let index = 0; index < channel.length; index++) {
+					channel[index] = pcm.getInt16(index * 2, true) / 32768;
+				}
+				delete effect.samples;
+			}
+			const source = audio.createBufferSource();
+			const volume = audio.createGain();
+			source.buffer = effect.buffer;
+			source.playbackRate.value = pitch;
+			volume.gain.value = 0.56;
+			source.connect(volume).connect(audio.destination);
+			source.start();
+		};
+
+		async function start() {
+			if (!Engine.isWebGLAvailable(2) || !Engine.isFetchAvailable()) {
+				throw new Error("Open Bang Bang in a desktop browser with WebGL 2 support.");
+			}
+			// The page plays sound effects directly when audio worklets are unavailable on LAN HTTP.
+			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2124216,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+			if (!Engine.isAudioWorkletAvailable()) {
+				config.args = [...config.args, "--audio-driver", "Dummy"];
+			}
+			const engine = new Engine(config);
+			await engine.startGame({
+				canvas: document.getElementById("canvas"),
+				onProgress(current, total) {
+					if (total > 0) {
+						progressBar.max = total;
+						progressBar.value = current;
+					}
+				},
+			});
+			statusPanel.hidden = true;
+		}
+
+		start().catch((error) => {
+			console.error(error);
+			message.textContent = error.message || "The game could not start.";
+			progressBar.hidden = true;
+		});
+	</script>
+</body>
+</html>
+
