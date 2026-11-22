@@ -32,6 +32,30 @@
 		const progressBar = document.getElementById("progress");
 		const message = document.getElementById("message");
 
+		// Keep receiving joystick drags when a finger leaves the canvas.
+		window.bangBangBindStick = (onStick) => {
+			const canvas = document.getElementById("canvas");
+			function send(phase, event) {
+				const rect = canvas.getBoundingClientRect();
+				const scale = Math.min(rect.width / 1120, rect.height / 720);
+				if (scale <= 0) return;
+				onStick(phase, event.pointerId,
+					(event.clientX - rect.left - (rect.width - 1120 * scale) / 2) / scale,
+					(event.clientY - rect.top - (rect.height - 720 * scale) / 2) / scale);
+			}
+			canvas.addEventListener("pointerdown", (event) => {
+				if (event.pointerType === "touch") send("down", event);
+			});
+			canvas.addEventListener("pointermove", (event) => {
+				if (event.pointerType === "touch") send("move", event);
+			});
+			for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+				canvas.addEventListener(type, (event) => {
+					if (event.pointerType === "touch") send("up", event);
+				});
+			}
+		};
+
 		let audio;
 		function enableAudio() {
 			const Context = window.AudioContext || window.webkitAudioContext;
@@ -72,14 +96,14 @@
 				throw new Error("This browser could not start WebGL 2. Try opening the link directly in an updated browser.");
 			}
 			// The page plays sound effects directly when audio worklets are unavailable on LAN HTTP.
-			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2151656,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2152440,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 			if (!Engine.isAudioWorkletAvailable()) {
 				config.args = [...config.args, "--audio-driver", "Dummy"];
 			}
 			const engine = new Engine(config);
-			window.bangBangRelayUrl = "wss://spots-invoice-forest-lined.trycloudflare.com";
+			window.bangBangRelayUrl = "wss://miss-tagged-services-potatoes.trycloudflare.com";
 			await engine.startGame({
-				mainPack: "bang-bang-seven.pck",
+				mainPack: "bang-bang-touch.pck",
 				canvas: document.getElementById("canvas"),
 				onProgress(current, total) {
 					if (total > 0) {
