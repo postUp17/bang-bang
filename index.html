@@ -96,14 +96,14 @@
 				throw new Error("This browser could not start WebGL 2. Try opening the link directly in an updated browser.");
 			}
 			// The page plays sound effects directly when audio worklets are unavailable on LAN HTTP.
-			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2152440,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+			const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":2160344,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 			if (!Engine.isAudioWorkletAvailable()) {
 				config.args = [...config.args, "--audio-driver", "Dummy"];
 			}
 			const engine = new Engine(config);
-			window.bangBangRelayUrl = "wss://miss-tagged-services-potatoes.trycloudflare.com";
+			window.bangBangRelayUrl = "wss://republic-effects-underwear-accomplish.trycloudflare.com";
 			await engine.startGame({
-				mainPack: "bang-bang-touch.pck",
+				mainPack: "bang-bang-arcade.pck",
 				canvas: document.getElementById("canvas"),
 				onProgress(current, total) {
 					if (total > 0) {
